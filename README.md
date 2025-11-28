@@ -77,11 +77,11 @@ int main() {
 }
 ```
 ## 🔧 Build & Run
-- Compile:
+Compile:
 ```
 gcc betterdateC.c -o betterdateC
 ```
-- Run:
+Run:
 ```
 ./betterdateC
 ```
