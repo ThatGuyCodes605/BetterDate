@@ -1,4 +1,4 @@
-# ⏱️ C Terminal Clock  
+# BetterDate  
 
 A simple terminal-based clock written in C that displays:
 
@@ -9,7 +9,7 @@ A simple terminal-based clock written in C that displays:
 
 ---
 
-## 🖥️ Example Output
+## Example Output
 
 ```
 Epoch: 1732812345
@@ -20,7 +20,7 @@ The same two lines refresh smoothly.
 
 ---
 
-## 🚀 Features
+## Features
 
 - Updates continuously without flickering  
 - Overwrites the same two lines using ANSI cursor movement  
@@ -31,7 +31,7 @@ The same two lines refresh smoothly.
 
 ---
 
-## 🧩 Source Code
+## Source Code
 
 ```
 #include <stdio.h>
@@ -42,7 +42,6 @@ int main() {
     time_t rawtime;
     struct tm *pTime;
 
-    // Print two lines so we have space to update
     printf("\n\n");
 
     while (1) {
@@ -53,13 +52,11 @@ int main() {
         clock_gettime(CLOCK_REALTIME, &ts);
         long ms = ts.tv_nsec / 1000000;
 
-        // Move cursor up 2 lines
         printf("\033[2A");
 
-        // Line 1 (Epoch)
         printf("Epoch: %ld\n", rawtime);
 
-        // Line 2 (Date/time)
+        
         printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d.%03ld\n",
                pTime->tm_mday,
                pTime->tm_mon + 1,
@@ -70,7 +67,7 @@ int main() {
                ms);
 
         fflush(stdout);
-        usleep(50000); // 50 ms update
+        
     }
 
     return 0;
