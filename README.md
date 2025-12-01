@@ -73,7 +73,7 @@ int main() {
     return 0;
 }
 ```
-## 🔧 Build & Run
+## Build & Run
 Compile:
 ```
 gcc betterdateC.c -o betterdateC
