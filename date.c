@@ -1,13 +1,17 @@
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
-
-int main() {
+#include <string.h>
+int main(int argc, char *argv[]) {
+    int use_12hour = 0;
     time_t rawtime;
     struct tm *pTime;
 
     // Hide cursor
     printf("\033[?25l");
+    if (argc > 1 && strcmp(argv[1], "-12") == 0) {
+    use_12hour = 1;
+}
     fflush(stdout);
 
     printf("\n\n");  // reserve 2 lines
@@ -25,20 +29,41 @@ int main() {
         printf("\033[2A");
 
         printf("Epoch: %ld\n", rawtime);
-
-        printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d.%03ld\n",
-               pTime->tm_mday,
-               pTime->tm_mon + 1,
-               pTime->tm_year + 1900,
-               pTime->tm_hour,
-               pTime->tm_min,
-               pTime->tm_sec,
-               ms);
-
+        if (use_12hour) {
+            int hour = pTime->tm_hour;
+            char *am_pm = "AM";
+            if (hour >= 12) {
+                am_pm = "PM";
+            }
+            if(hour > 12){
+                hour -= 12;
+            }
+            if(hour == 0){
+                hour = 12;
+            }   
+            printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d.%03ld %s\n",
+                   pTime->tm_mday,
+                   pTime->tm_mon + 1,
+                   pTime->tm_year + 1900,
+                   hour,
+                   pTime->tm_min,
+                   pTime->tm_sec,
+                   ms,
+                   am_pm);
+        }
+        else {
+            printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d.%03ld\n",
+                   pTime->tm_mday,
+                   pTime->tm_mon + 1,
+                   pTime->tm_year + 1900,
+                   pTime->tm_hour,
+                   pTime->tm_min,
+                   pTime->tm_sec,
+                   ms);
+        }
         fflush(stdout);
         nanosleep(&(struct timespec){0, 1000000}, NULL);
     }
-
     // Show cursor again
     printf("\033[?25h");
     fflush(stdout);
