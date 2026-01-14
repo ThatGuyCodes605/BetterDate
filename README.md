@@ -76,9 +76,9 @@ int main() {
 ## Build & Run
 Compile:
 ```
-gcc date.c -o date
+make && sudo make install
 ```
 Run:
 ```
-./date
+betterdate
 ```
