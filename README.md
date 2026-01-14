@@ -29,7 +29,7 @@ The same two lines refresh smoothly.
 - Works on any Linux terminal  
 - No external dependencies  
 - Great intro project for C time functions and terminal control  
-
+- You can use -12 for 12 hour time
 ---
 
 ## Source Code
