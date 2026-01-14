@@ -76,9 +76,9 @@ int main() {
 ## Build & Run
 Compile:
 ```
-gcc betterdateC.c -o betterdateC
+gcc date.c -o date
 ```
 Run:
 ```
-./betterdateC
+./date
 ```
