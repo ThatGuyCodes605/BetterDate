@@ -6,6 +6,7 @@ A simple terminal-based clock written in C that displays:
 - **Date + time with milliseconds** on the second line  
 - Both lines update **in place** without printing new lines  
 - Uses ANSI escape codes for cursor control  
+- Use -12 for 12 hour time
 
 ---
 
