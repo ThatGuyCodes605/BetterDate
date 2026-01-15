@@ -25,19 +25,29 @@ void handle_exit(int sig) {
     fflush(stdout);
     exit(0);
 }
-void start_stopwatch(int seconds){
+void start_stopwatch(double minutes){
     time_t start = time(NULL);
     time_t end;
-    printf("Stopwatch started for %d seconds. Press Ctrl+C to stop.\n", seconds);
+    time_t total_seconds = minutes * 60;
+    printf("Stopwatch started for %lf minutes. Press Ctrl+C to stop.\n", minutes);
     while (1) {
         end = time(NULL);
-        double elapsed = difftime(end, start);
-        printf("Elapsed Time: %.f seconds\r", elapsed);
         fflush(stdout);
-        
-        if (elapsed >= seconds) {
-            printf("\nStopwatch finished! Total time: %d seconds\n", seconds);
+        printf("time left: %02ld:%02ld\r", (total_seconds - (end - start)) / 60, (total_seconds - (end - start)) % 60);
+        if ((end - start) >= total_seconds) {
+            printf("\nStopwatch finished!\n");
+            system("tput bel");
+            sleep(1);
+            system("tput bel");
+            sleep(1);
+            system("tput bel");
+            sleep(1);
+            system("tput bel");
+            sleep(1);
+            system("tput bel");
+            sleep(1);
             printf("\033[?25h");
+            fflush(stdout);
             break;
         }
         sleep(1);
@@ -72,8 +82,8 @@ int main(int argc, char *argv[]) {
         }
     }
         else if (strcmp(argv[i], "-sw") == 0 && i + 1 < argc) {
-            int seconds = atoi(argv[i + 1]);
-            start_stopwatch(seconds);
+            double minutes = atof(argv[i + 1]);  
+            start_stopwatch(minutes);            
             return 0; // Exit after stopwatch
         }
 }
