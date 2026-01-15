@@ -16,10 +16,21 @@
 #include <time.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
+#include <stdlib.h>
+void handle_exit(int sig) {
+    (void)sig;  // Suppress unused parameter warning
+    // Show cursor
+    printf("\033[?25h");
+    fflush(stdout);
+    exit(0);
+}
 int main(int argc, char *argv[]) {
     int use_12hour = 0;
     time_t rawtime;
     struct tm *pTime;
+    // Set up signal handler for Ctrl+C
+    signal(SIGINT, handle_exit);
 
     // Hide cursor
     printf("\033[?25l");
@@ -27,10 +38,10 @@ int main(int argc, char *argv[]) {
     use_12hour = 1;
 }
     fflush(stdout);
-
+    int IsRunning = 1;
     printf("\n\n");  // reserve 2 lines
 
-    while (1) {
+    while (IsRunning) {
         struct timespec ts;
         clock_gettime(CLOCK_REALTIME, &ts);
 
@@ -84,4 +95,3 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-
