@@ -27,6 +27,10 @@ void handle_exit(int sig) {
 }
 int main(int argc, char *argv[]) {
     int use_12hour = 0;
+    int show_epoch = 1;
+    int show_ns = 0;
+    int show_ms = 0;
+    char *timezone = NULL;
     time_t rawtime;
     struct tm *pTime;
     // Set up signal handler for Ctrl+C
@@ -34,12 +38,29 @@ int main(int argc, char *argv[]) {
 
     // Hide cursor
     printf("\033[?25l");
-    if (argc > 1 && strcmp(argv[1], "-12") == 0) {
-    use_12hour = 1;
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-12") == 0) {
+            use_12hour = 1;
+        } else if (strcmp(argv[i], "-ne") == 0) {
+            show_epoch = 0;
+        } else if (strcmp(argv[i], "-ns") == 0) {
+            show_ns = 1;
+        } else if (strcmp(argv[i], "-ms") == 0) {
+            show_ms = 1;
+        } else if (strcmp(argv[i], "-tz") == 0) {  // Add this
+        if (i + 1 < argc) {
+            timezone = argv[i + 1];
+            i++; 
+        }
+    }
+}
+    if (timezone != NULL) {
+    setenv("TZ", timezone, 1);
+    tzset();
 }
     fflush(stdout);
     int IsRunning = 1;
-    printf("\n\n");  // reserve 2 lines
+    printf(show_epoch ? "\n\n" : "\n");
 
     while (IsRunning) {
         struct timespec ts;
@@ -49,11 +70,14 @@ int main(int argc, char *argv[]) {
         pTime = localtime(&rawtime);
 
         long ms = ts.tv_nsec / 1000000;
-
-        // Move cursor up 2 lines to redraw
-        printf("\033[2A");
-
-        printf("Epoch: %ld\n", rawtime);
+        long us = (ts.tv_nsec / 1000) % 1000;
+        long ns = ts.tv_nsec % 1000;
+        printf(show_epoch ? "\033[2A" : "\033[1A");
+        
+        if (show_epoch) {
+           printf("Epoch: %ld\n", rawtime);
+        }
+        
         if (use_12hour) {
             int hour = pTime->tm_hour;
             char *am_pm = "AM";
@@ -65,33 +89,87 @@ int main(int argc, char *argv[]) {
             }
             if(hour == 0){
                 hour = 12;
-            }   
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d.%03ld %s\n",
-                   pTime->tm_mday,
-                   pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   hour,
-                   pTime->tm_min,
-                   pTime->tm_sec,
-                   ms,
-                   am_pm);
+            }
+            
+            if (show_ns) {
+                printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d.%03ld.%03ld.%03ld %s\n",
+                       pTime->tm_mday,
+                       pTime->tm_mon + 1,
+                       pTime->tm_year + 1900,
+                       hour,
+                       pTime->tm_min,
+                       pTime->tm_sec,
+                       ms,
+                       us,
+                       ns,
+                       am_pm);
+            } else if (show_ms) {
+                printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d.%03ld.%03ld %s\n",
+                       pTime->tm_mday,
+                       pTime->tm_mon + 1,
+                       pTime->tm_year + 1900,
+                       hour,
+                       pTime->tm_min,
+                       pTime->tm_sec,
+                       ms,
+                       us,
+                       am_pm);
+            } else {
+                printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d.%03ld %s\n",
+                       pTime->tm_mday,
+                       pTime->tm_mon + 1,
+                       pTime->tm_year + 1900,
+                       hour,
+                       pTime->tm_min,
+                       pTime->tm_sec,
+                       ms,
+                       am_pm);
+            }
         }
         else {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d.%03ld\n",
-                   pTime->tm_mday,
-                   pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   pTime->tm_hour,
-                   pTime->tm_min,
-                   pTime->tm_sec,
-                   ms);
+            if (show_ns) {
+                printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d.%03ld.%03ld.%03ld\n",
+                       pTime->tm_mday,
+                       pTime->tm_mon + 1,
+                       pTime->tm_year + 1900,
+                       pTime->tm_hour,
+                       pTime->tm_min,
+                       pTime->tm_sec,
+                       ms,
+                       us,
+                       ns);
+            } else if (show_ms) {
+                printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d.%03ld.%03ld\n",
+                       pTime->tm_mday,
+                       pTime->tm_mon + 1,
+                       pTime->tm_year + 1900,
+                       pTime->tm_hour,
+                       pTime->tm_min,
+                       pTime->tm_sec,
+                       ms,
+                       us);
+            } else {
+                printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d.%03ld\n",
+                       pTime->tm_mday,
+                       pTime->tm_mon + 1,
+                       pTime->tm_year + 1900,
+                       pTime->tm_hour,
+                       pTime->tm_min,
+                       pTime->tm_sec,
+                       ms);
+            }
         }
+        
         fflush(stdout);
-        nanosleep(&(struct timespec){0, 1000000}, NULL);
+        
+        // Only sleep if not showing high precision time
+        if (!show_ns && !show_ms) {
+            nanosleep(&(struct timespec){0, 1000000}, NULL);
+        }
     }
+    
     // Show cursor again
     printf("\033[?25h");
     fflush(stdout);
-
     return 0;
 }
