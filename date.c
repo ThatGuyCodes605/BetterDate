@@ -25,6 +25,24 @@ void handle_exit(int sig) {
     fflush(stdout);
     exit(0);
 }
+void start_stopwatch(int seconds){
+    time_t start = time(NULL);
+    time_t end;
+    printf("Stopwatch started for %d seconds. Press Ctrl+C to stop.\n", seconds);
+    while (1) {
+        end = time(NULL);
+        double elapsed = difftime(end, start);
+        printf("Elapsed Time: %.f seconds\r", elapsed);
+        fflush(stdout);
+        
+        if (elapsed >= seconds) {
+            printf("\nStopwatch finished! Total time: %d seconds\n", seconds);
+            printf("\033[?25h");
+            break;
+        }
+        sleep(1);
+    }
+}
 int main(int argc, char *argv[]) {
     int use_12hour = 0;
     int show_epoch = 1;
@@ -47,12 +65,17 @@ int main(int argc, char *argv[]) {
             show_ns = 1;
         } else if (strcmp(argv[i], "-ms") == 0) {
             show_ms = 1;
-        } else if (strcmp(argv[i], "-tz") == 0) {  // Add this
+        } else if (strcmp(argv[i], "-tz") == 0) {  
         if (i + 1 < argc) {
             timezone = argv[i + 1];
             i++; 
         }
     }
+        else if (strcmp(argv[i], "-sw") == 0 && i + 1 < argc) {
+            int seconds = atoi(argv[i + 1]);
+            start_stopwatch(seconds);
+            return 0; // Exit after stopwatch
+        }
 }
     if (timezone != NULL) {
     setenv("TZ", timezone, 1);
