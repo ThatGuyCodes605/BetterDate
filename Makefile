@@ -42,6 +42,12 @@ ifeq ($(UNAME_S),NetBSD)
     INSTALL_DIR = /usr/local/bin
 endif
 
+ifeq ($(UNAME_S),DragonFly)
+    PLATFORM = DragonflyBSD
+    LDFLAGS =
+    INSTALL_DIR = /usr/local/bin
+endif
+
 # Windows detection (Git Bash, Cygwin, MSYS2, WSL)
 ifneq (,$(findstring MINGW,$(UNAME_S)))
     PLATFORM = Windows (MinGW)
@@ -95,6 +101,9 @@ else ifeq ($(PLATFORM),OpenBSD)
 else ifeq ($(PLATFORM),NetBSD)
 	@sudo cp $(TARGET) $(INSTALL_DIR)/$(TARGET)
 	@sudo chmod 755 $(INSTALL_DIR)/$(TARGET)
+else ifeq ($(PLATFORM),DragonflyBSD)
+	@sudo cp $(TARGET) $(INSTALL_DIR)/$(TARGET)
+	@sudo chmod 755 $(INSTALL_DIR)/$(TARGET)
 else ifeq ($(PLATFORM),macOS)
 	@sudo cp $(TARGET) $(INSTALL_DIR)/$(TARGET)
 	@sudo chmod 755 $(INSTALL_DIR)/$(TARGET)
@@ -137,10 +146,13 @@ help:
 	@echo "  make help     - Show this help message"
 	@echo ""
 	@echo "Platform-specific notes:"
-	@echo "  Linux:   Uses -lrt for real-time library"
-	@echo "  macOS:   No additional libraries needed"
-	@echo "  *BSD:    No additional libraries needed"
-	@echo "  Windows: Builds .exe (limited terminal support)"
-	@echo "  OpenBSD: Uses 'doas' instead of 'sudo'"
+	@echo "  Linux:      Uses -lrt for real-time library"
+	@echo "  macOS:      No additional libraries needed"
+	@echo "  FreeBSD:    No additional libraries needed"
+	@echo "  OpenBSD:    Uses 'doas' instead of 'sudo'"
+	@echo "  NetBSD:     No additional libraries needed"
+	@echo "  DragonflyBSD: No additional libraries needed"
+	@echo "  Windows:    Builds .exe (limited terminal support)"
+	@echo "  OpenBSD:    Uses 'doas' instead of 'sudo'"
 
 .PHONY: all platform_info install uninstall clean run help
