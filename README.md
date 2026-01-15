@@ -1,7 +1,6 @@
-# BetterDate                                                                                                                                           
-
-
 <img width="136" height="68" alt="gplv3-with-text-136x68" src="https://github.com/user-attachments/assets/32759ed1-1c55-4ce9-ac0d-9a6980ddb2f2" />
+
+# BetterDate                                                                                                                                        
 
 
 A simple terminal-based clock written in C that displays:
