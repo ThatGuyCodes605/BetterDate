@@ -98,6 +98,9 @@ betterdate -tz UTC
 betterdate -tz America/New_York
 betterdate -tz Europe/London
 betterdate -tz Asia/Tokyo
+
+#Stopwatch
+betterdate -sw 8 #sets a stopwatch for 8 seconds
 ```
 
 ### Combining Options
@@ -122,6 +125,7 @@ betterdate -12 -ns
 | `-ms` | Show microseconds (format: SS.mmm.uuu) |
 | `-ns` | Show nanoseconds (format: SS.mmm.uuu.nnn) |
 | `-tz <timezone>` | Display time in specified timezone |
+| `-sw <seconds>` | Starts Stopwatch in specified number of seconds |
 
 ### Common Timezones
 
