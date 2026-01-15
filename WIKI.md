@@ -177,8 +177,7 @@ Press `Ctrl+C` to exit and restore your terminal cursor.
 - Sync your system clock: `sudo ntpdate pool.ntp.org` or `sudo timedatectl set-ntp true`
 
 **Problem: Library 'rt' not found (macOS)**
-- This is expected - the program is designed for Linux only
-- The Makefile detects macOS and removes the `-lrt` flag, but full functionality is not guaranteed on non-Linux systems
+- This is expected - the program is designed for Linux only (for now)
 
 ---
 
@@ -189,6 +188,7 @@ BetterDate/
 ├── date.c       # Main source code
 ├── Makefile     # Build configuration
 ├── LICENSE      # GPL-3.0 license
+├── WIKI.md      # Project wiki
 └── README.md    # Project overview
 ```
 
