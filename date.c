@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
         fflush(stdout);
         return 0;
     } else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
-        printf("betterdate version 1.6\n");
+        printf("betterdate version 1.7\n");
         printf("Copyright (C) 2026 ThatGuyCodes605\n");
         printf("This program comes with ABSOLUTELY NO WARRANTY.\n");
         printf("This is free software, and you are welcome to redistribute it\n");
