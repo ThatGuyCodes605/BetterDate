@@ -2,13 +2,16 @@
 
 ## Home
 
-**BetterDate** is an improved version of the standard Unix `date` command. It's a feature-rich terminal-based clock written in C that displays real-time updates with configurable precision (milliseconds, microseconds, or nanoseconds) and timezone support.
+**BetterDate** is an improved version of the standard Unix `date` command. It's a feature-rich terminal-based clock written in C that displays real-time updates with configurable precision (milliseconds, microseconds, or nanoseconds), timezone support, customizable date/time formats, and a built-in stopwatch timer.
 
 ### Features
 - ⏰ Real-time clock with configurable precision (milliseconds, microseconds, nanoseconds)
 - 🕐 Both 24-hour (default) and 12-hour format support with AM/PM
 - 🌍 Timezone support - view time in any timezone worldwide
 - 📅 Unix epoch timestamp display (optional)
+- 🇺🇸 US date format support - switch between DD/MM/YYYY and MM/DD/YYYY
+- ⏱️ Built-in stopwatch - countdown timer with alarm beeps
+- 🎛️ Customizable display - hide seconds, hide milliseconds, show high precision
 - 🖥️ Clean, in-place updating display without flickering or scrolling
 - ⚡ Efficient - automatically adjusts update rate based on precision level
 - 🛑 Graceful exit handling with Ctrl+C
@@ -20,33 +23,40 @@ Works on Linux (full nanosecond precision), macOS (microsecond precision), FreeB
 
 ### Example Output
 
-**Default (milliseconds):**
+**Default (DD/MM/YYYY, milliseconds):**
 ```
 Epoch: 1737000000
 Date: 15/01/2026  Time: 18:41:13.123
 ```
 
-**With microseconds (-ms):**
+**US format (MM/DD/YYYY):**
 ```
 Epoch: 1737000000
-Date: 15/01/2026  Time: 18:41:13.123.456
+Date: 01/15/2026  Time: 18:41:13.123
 ```
 
-**With nanoseconds (-ns):**
+**12-hour with no milliseconds:**
+```
+Epoch: 1737000000
+Date: 15/01/2026  Time: 06:41:13 PM
+```
+
+**No seconds (HH:MM only):**
+```
+Epoch: 1737000000
+Date: 15/01/2026  Time: 18:41
+```
+
+**With nanoseconds:**
 ```
 Epoch: 1737000000
 Date: 15/01/2026  Time: 18:41:13.123.456.789
 ```
 
-**12-hour format (-12):**
+**Stopwatch:**
 ```
-Epoch: 1737000000
-Date: 15/01/2026  Time: 06:41:13.123 PM
-```
-
-**Without epoch (-ne):**
-```
-Date: 15/01/2026  Time: 18:41:13.123
+Stopwatch started for 5.000000 minutes. Press Ctrl+C to stop.
+Time left: 04:59
 ```
 
 All displays refresh smoothly in place.
@@ -82,7 +92,7 @@ sudo make uninstall
 
 ### Basic Usage
 
-**Default display (24-hour, milliseconds, with epoch):**
+**Default display (24-hour, DD/MM/YYYY, milliseconds, with epoch):**
 ```bash
 betterdate
 ```
@@ -91,6 +101,23 @@ betterdate
 ```bash
 betterdate -12
 ```
+
+**US date format (MM/DD/YYYY):**
+```bash
+betterdate -US
+```
+
+**Hide milliseconds:**
+```bash
+betterdate -NM
+```
+Output: `Time: 18:41:13`
+
+**Hide seconds:**
+```bash
+betterdate -NS
+```
+Output: `Time: 18:41`
 
 **Microseconds precision:**
 ```bash
@@ -117,19 +144,41 @@ betterdate -tz Europe/London
 betterdate -tz Asia/Tokyo
 ```
 
+**Start stopwatch:**
+```bash
+betterdate -sw 5      # 5 minutes
+betterdate -sw 0.5    # 30 seconds
+betterdate -sw 0.1    # 6 seconds
+```
+
+**Show help:**
+```bash
+betterdate -h
+betterdate --help
+```
+
+**Show version:**
+```bash
+betterdate -v
+betterdate --version
+```
+
 ### Combining Options
 
 You can combine multiple flags:
 
 ```bash
-# 12-hour format with microseconds in Tokyo, no epoch
-betterdate -12 -ms -tz Asia/Tokyo -ne
+# 12-hour US format with no milliseconds in Tokyo
+betterdate -12 -US -NM -tz Asia/Tokyo
 
-# 24-hour UTC with nanoseconds
-betterdate -tz UTC -ns
+# 24-hour UTC with nanoseconds, no epoch
+betterdate -tz UTC -ns -ne
 
-# 12-hour format with nanoseconds
-betterdate -12 -ns
+# 12-hour format with no seconds
+betterdate -12 -NS
+
+# US format with microseconds and no epoch
+betterdate -US -ms -ne
 ```
 
 ### Available Flags
@@ -141,8 +190,26 @@ betterdate -12 -ns
 | `-ms` | Show microseconds (milliseconds + microseconds) | `betterdate -ms` |
 | `-ns` | Show nanoseconds (milliseconds + microseconds + nanoseconds) | `betterdate -ns` |
 | `-tz <timezone>` | Display time in specified timezone | `betterdate -tz UTC` |
+| `-US` | Use US date format (MM/DD/YYYY) | `betterdate -US` |
+| `-NM` | Hide milliseconds (No Milliseconds) | `betterdate -NM` |
+| `-NS` | Hide seconds (No Seconds) | `betterdate -NS` |
+| `-sw <minutes>` | Start stopwatch countdown timer | `betterdate -sw 5` |
+| `-h, --help` | Show help message | `betterdate -h` |
+| `-v, --version` | Show version information | `betterdate -v` |
 
-### Precision Levels
+### Date Format Options
+
+**Default (DD/MM/YYYY):**
+- 15/01/2026 (15th of January, 2026)
+- International standard format
+
+**US Format (-US - MM/DD/YYYY):**
+- 01/15/2026 (January 15th, 2026)
+- Common in United States
+
+### Time Display Options
+
+**Precision Levels:**
 
 - **Default**: Milliseconds only (3 digits after seconds)
   - Format: `HH:MM:SS.mmm`
@@ -155,6 +222,56 @@ betterdate -12 -ns
 - **Nanoseconds (-ns)**: Milliseconds + Microseconds + Nanoseconds (9 digits total)
   - Format: `HH:MM:SS.mmm.uuu.nnn`
   - Updates as fast as possible (no sleep)
+
+**Visibility Options:**
+
+- **No Milliseconds (-NM)**: Hide all decimal precision
+  - Format: `HH:MM:SS`
+  - Shows seconds only
+
+- **No Seconds (-NS)**: Hide seconds and milliseconds
+  - Format: `HH:MM`
+  - Shows hours and minutes only
+  - Updates every minute, minimal CPU usage
+
+**Note:** `-NM` and `-NS` take priority over `-ms` and `-ns` flags.
+
+### Stopwatch Feature
+
+The stopwatch is a countdown timer that accepts time in minutes (supports decimals):
+
+```bash
+# Basic usage
+betterdate -sw <minutes>
+
+# Examples
+betterdate -sw 5        # 5 minutes
+betterdate -sw 1.5      # 1 minute 30 seconds
+betterdate -sw 0.5      # 30 seconds
+betterdate -sw 0.1      # 6 seconds
+betterdate -sw 0.0167   # 1 second
+```
+
+**Stopwatch behavior:**
+- Displays countdown in MM:SS format
+- Updates every second
+- Beeps 5 times when timer finishes (using system bell)
+- Press Ctrl+C to stop early
+- Automatically exits after completion
+
+**Example output:**
+```
+Stopwatch started for 5.000000 minutes. Press Ctrl+C to stop.
+Time left: 04:59
+Time left: 04:58
+Time left: 04:57
+...
+Time left: 00:01
+Time left: 00:00
+
+Stopwatch finished!
+[beep beep beep beep beep]
+```
 
 ### Common Timezones
 
@@ -210,7 +327,9 @@ Press `Ctrl+C` to exit. The program will gracefully restore your terminal cursor
 
 **Time Conversion:**
 - Unix epoch: raw timestamp (seconds since January 1, 1970)
-- Date formatting: `DD/MM/YYYY`
+- Date formatting:
+  - Default: DD/MM/YYYY
+  - US format: MM/DD/YYYY (swaps day and month)
 - Time precision breakdown:
   - Milliseconds: `tv_nsec / 1000000` (0-999)
   - Microseconds: `(tv_nsec / 1000) % 1000` (0-999)
@@ -228,9 +347,17 @@ Press `Ctrl+C` to exit. The program will gracefully restore your terminal cursor
 - Only affects the running program, not system settings
 - Defaults to system timezone if `-tz` not specified
 
+**Stopwatch Implementation:**
+- Uses `time()` for second-level precision
+- Calculates elapsed time and remaining time
+- Simple countdown display with MM:SS format
+- Uses `system("tput bel")` for beep sound (5 times)
+- Hides cursor during countdown, restores on exit
+
 **Performance Optimization:**
-- Default mode: sleeps 1ms between updates to reduce CPU usage
-- High-precision modes (-ms, -ns): no sleep for maximum update rate
+- Default mode: sleeps 1ms between updates (~0.1% CPU)
+- High-precision modes (-ms, -ns): no sleep for maximum update rate (~5-10% CPU)
+- No seconds mode (-NS): updates every minute (~0% CPU)
 - Automatic adjustment based on precision requirements
 
 ---
@@ -333,11 +460,17 @@ Press `Ctrl+C` to exit. The program will gracefully restore your terminal cursor
 - True nanosecond precision requires Linux
 - Microseconds should still be updating correctly
 
-**Problem: Compilation errors with `clock_gettime`**
-- Ensure you have development tools installed
-- Linux: `sudo apt install build-essential` (Ubuntu/Debian)
-- macOS: Install Xcode Command Line Tools
-- Check that you're using a modern C compiler
+**Problem: Stopwatch doesn't beep**
+- Your terminal may not support the bell character
+- Check terminal settings for "Terminal bell" or "Audible bell"
+- Try a different terminal emulator
+- System volume may be muted
+
+**Problem: -NS and -NM don't work with -ns or -ms**
+- This is intentional - visibility flags take priority
+- `-NS` hides all time precision
+- `-NM` hides millisecond precision
+- Use either precision flags OR visibility flags, not both
 
 **Problem: Time appears incorrect**
 - Check system time: `date`
@@ -352,25 +485,56 @@ Press `Ctrl+C` to exit. The program will gracefully restore your terminal cursor
 **Problem: High CPU usage**
 - This is expected when using `-ms` or `-ns` flags
 - These modes update as fast as possible for precision
-- Use default mode for lower CPU usage
-- Default mode includes 1ms sleep to reduce CPU
+- Use default mode or `-NM` for lower CPU usage
 
-**Problem: Cursor stays hidden after crash**
-- Run: `printf '\033[?25h'` to restore cursor manually
-- Or: `reset` command to reset terminal
-- Program should handle this automatically with Ctrl+C
+**Problem: Unknown option error**
+- Check that flag is spelled correctly
+- Flags are case-sensitive: `-US`, `-NS`, `-NM`
+- Use `-h` to see all available options
 
 ---
 
-## Project Structure
+## Usage Examples
 
+### Clock Display Examples
+
+```bash
+# Simple 24-hour clock
+betterdate
+
+# 12-hour clock in US format
+betterdate -12 -US
+
+# UTC time with nanoseconds
+betterdate -tz UTC -ns
+
+# Tokyo time, no milliseconds, no epoch
+betterdate -tz Asia/Tokyo -NM -ne
+
+# Simple HH:MM display
+betterdate -NS -ne
+
+# High precision European time
+betterdate -tz Europe/Paris -ns
 ```
-BetterDate/
-├── date.c       # Main source code
-├── Makefile     # Multi-platform build configuration
-├── LICENSE      # GPL-3.0 license
-├── README.md    # Project overview
-└── WIKI.md      # This documentation
+
+### Stopwatch Examples
+
+```bash
+# Pomodoro timer (25 minutes)
+betterdate -sw 25
+
+# Short break (5 minutes)
+betterdate -sw 5
+
+# Tea timer (3 minutes)
+betterdate -sw 3
+
+# Quick timer (30 seconds)
+betterdate -sw 0.5
+
+# Precise 10 second timer
+betterdate -sw 0.167
 ```
 
 ---
@@ -381,6 +545,8 @@ BetterDate/
 - **Default mode**: ~0.1% CPU (updates every 1ms with sleep)
 - **Microsecond mode (-ms)**: ~5-10% CPU (continuous updates)
 - **Nanosecond mode (-ns)**: ~5-10% CPU (continuous updates)
+- **No seconds mode (-NS)**: ~0% CPU (updates every minute)
+- **Stopwatch mode**: ~0% CPU (updates every second)
 
 ### Memory Usage
 - Minimal: ~1-2 MB resident memory
@@ -390,6 +556,8 @@ BetterDate/
 ### Update Rates
 - **Default**: 1000 updates/second (1ms interval)
 - **-ms/-ns**: Limited only by system scheduler (~10,000+ updates/second)
+- **-NS**: 1 update/minute
+- **Stopwatch**: 1 update/second
 
 ---
 
@@ -426,7 +594,7 @@ Open an issue on GitHub with:
 - Steps to reproduce
 - Expected vs actual behavior
 - System information (OS, distribution, kernel version, terminal emulator)
-- Any relevant error messages or screenshots
+- Command used and output received
 - Output of `make help` showing detected platform
 
 ### Feature Requests
@@ -438,13 +606,14 @@ Open an issue on GitHub describing:
 
 ### Good First Issues
 Looking to contribute but not sure where to start? Some ideas:
-- Add support for different date formats (MM/DD/YYYY, YYYY-MM-DD, ISO 8601)
+- Add support for ISO 8601 date format (YYYY-MM-DD)
 - Add color customization options
 - Add option to show day of week
-- Improve error handling and user messages
+- Improve stopwatch with hours support
+- Add alarm feature (beep at specific time)
 - Add support for displaying multiple timezones simultaneously
 - Write additional documentation or examples
-- Add unit tests
+- Add configuration file support
 
 ---
 
@@ -457,33 +626,9 @@ BetterDate is a great project for learning:
 - **Build systems** - Cross-platform Makefiles with conditional compilation
 - **System programming** - Working with timestamps, signals, and real-time display
 - **Precision timing** - Understanding nanoseconds, microseconds, and milliseconds
+- **User interface design** - Creating clean, intuitive command-line interfaces
 
 The code is intentionally kept simple and readable, making it perfect for beginners to study and modify while still being useful for daily use.
-
----
-
-## Releases
-
-### v2.0 (Upcoming)
-- Added microsecond precision mode (-ms)
-- Added nanosecond precision mode (-ns)
-- Added timezone support (-tz)
-- Added signal handler for graceful Ctrl+C exit
-- Improved multi-platform Makefile (added DragonflyBSD)
-- Automatic performance optimization based on precision mode
-- Better cursor handling
-
-### v1.1
-- Added 12-hour time format support with `-12` flag
-- Improved terminal compatibility
-- Bug fixes and performance improvements
-
-### v1.0
-- Initial release
-- Basic real-time clock display
-- Unix epoch timestamp
-- Millisecond precision
-- ANSI cursor control for smooth updates
 
 ---
 
@@ -516,7 +661,7 @@ If you encounter any issues or have questions:
 - Open an issue on GitHub
 - Check the troubleshooting section above
 - Review existing issues to see if your problem has been addressed
-- Check `make help` to see detected platform information
+- Use `-h` flag to see all available options
 
 For general C programming questions or terminal control help, consider:
 - Stack Overflow
@@ -529,6 +674,8 @@ For general C programming questions or terminal control help, consider:
 
 - The program can display time down to the nanosecond (0.000000001 seconds)
 - On Linux, it can update over 10,000 times per second in high-precision mode
-- The entire program is less than 200 lines of C code
+- The entire program is under 400 lines of C code
 - Works on 7+ different operating systems with one Makefile
 - Can display any timezone in the world without changing system settings
+- The stopwatch accepts fractional minutes (e.g., 0.1 minutes = 6 seconds)
+- Supports both international (DD/MM/YYYY) and US (MM/DD/YYYY) date formats
