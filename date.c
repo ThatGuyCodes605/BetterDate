@@ -18,6 +18,48 @@
 #include <string.h>
 #include <signal.h>
 #include <stdlib.h>
+void print_datetime(struct tm *pTime, int hour, int use_12hour, char *am_pm,
+                    long ms, long us, long ns,
+                    int use_us_date, int hide_date, int hide_seconds,
+                    int hide_milliseconds, int show_ms, int show_ns) {
+
+    // Print date (if not hidden)
+    if (!hide_date) {
+        printf("Date: %02d/%02d/%d  ",
+               use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
+               use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
+               pTime->tm_year + 1900);
+    }
+
+    // Print time label
+    printf("Time: ");
+
+    // Print hours and minutes
+    printf("%02d:%02d", hour, pTime->tm_min);
+
+    // Print seconds (if not hidden)
+    if (!hide_seconds) {
+        printf(":%02d", pTime->tm_sec);
+
+        // Print precision (if seconds are shown and milliseconds not hidden)
+        if (!hide_milliseconds) {
+            if (show_ns) {
+                printf(".%03ld.%03ld.%03ld", ms, us, ns);
+            } else if (show_ms) {
+                printf(".%03ld.%03ld", ms, us);
+            } else {
+                printf(".%03ld", ms);
+            }
+        }
+    }
+
+    // Print AM/PM for 12-hour format
+    if (use_12hour) {
+        printf(" %s", am_pm);
+    }
+
+    printf("\n");
+}
 void handle_exit(int sig) {
     (void)sig;  // Suppress unused parameter warning
     // Show cursor
@@ -61,6 +103,7 @@ int main(int argc, char *argv[]) {
     int use_us_date = 0;      
     int hide_milliseconds = 0; 
     int hide_seconds = 0;
+    int hide_date = 0;
     char *timezone = NULL;
     time_t rawtime;
     struct tm *pTime;
@@ -102,6 +145,7 @@ int main(int argc, char *argv[]) {
         printf("  -US           Use US date format (MM/DD/YYYY)\n");
         printf("  -NM           Hide milliseconds\n");
         printf("  -NS           Hide seconds\n");
+        printf("  -ND           Hide date\n");
         printf("  -h, --help    Show this help message\n");
         printf("  -v, --version Show version information\n");
         printf("\033[?25h");  // Show cursor
@@ -122,7 +166,11 @@ int main(int argc, char *argv[]) {
         hide_milliseconds = 1;
     } else if (strcmp(argv[i], "-NS") == 0) {
         hide_seconds = 1;
-    } else {
+    } 
+    else if (strcmp(argv[i], "-ND") == 0) {  
+        hide_date = 1;
+    }
+    else {
         printf("Unknown option: %s\n", argv[i]);
         printf("Use -h or --help for usage information.\n");
         printf("\033[?25h");  // Show cursor
@@ -154,197 +202,23 @@ int main(int argc, char *argv[]) {
         if (show_epoch) {
            printf("Epoch: %ld\n", rawtime);
         }
-        
-      if (use_12hour) {
-    int hour = pTime->tm_hour;
-    char *am_pm = "AM";
-    if (hour >= 12) {
-        am_pm = "PM";
-    }
-    if(hour > 12){
-        hour -= 12;
-    }
-    if(hour == 0){
-        hour = 12;
-    }
-    
-    if (show_ns) {
-        if (hide_seconds) {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d %s\n",
-                   use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
-                   use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   hour,
-                   pTime->tm_min,
-                   am_pm);
-        } else if (hide_milliseconds) {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d %s\n",
-                   use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
-                   use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   hour,
-                   pTime->tm_min,
-                   pTime->tm_sec,
-                   am_pm);
-        } else {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d.%03ld.%03ld.%03ld %s\n",
-                   use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
-                   use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   hour,
-                   pTime->tm_min,
-                   pTime->tm_sec,
-                   ms,
-                   us,
-                   ns,
-                   am_pm);
+        int hour = pTime->tm_hour;
+         char *am_pm = "AM";
+
+       if (use_12hour) {
+                  if (hour >= 12) {
+           am_pm = "PM";
         }
-    } else if (show_ms) {
-        if (hide_seconds) {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d %s\n",
-                   use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
-                   use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   hour,
-                   pTime->tm_min,
-                   am_pm);
-        } else if (hide_milliseconds) {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d %s\n",
-                   use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
-                   use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   hour,
-                   pTime->tm_min,
-                   pTime->tm_sec,
-                   am_pm);
-        } else {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d.%03ld.%03ld %s\n",
-                   use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
-                   use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   hour,
-                   pTime->tm_min,
-                   pTime->tm_sec,
-                   ms,
-                   us,
-                   am_pm);
+        if(hour > 12){
+          hour -= 12;
+             }
+        if(hour == 0){
+             hour = 12;
         }
-    } else {
-        if (hide_seconds) {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d %s\n",
-                   use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
-                   use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   hour,
-                   pTime->tm_min,
-                   am_pm);
-        } else if (hide_milliseconds) {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d %s\n",
-                   use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
-                   use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   hour,
-                   pTime->tm_min,
-                   pTime->tm_sec,
-                   am_pm);
-        } else {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d.%03ld %s\n",
-                   use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
-                   use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   hour,
-                   pTime->tm_min,
-                   pTime->tm_sec,
-                   ms,
-                   am_pm);
-        }
-    }
-}
-else {
-    if (show_ns) {
-        if (hide_seconds) {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d\n",
-                   use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
-                   use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   pTime->tm_hour,
-                   pTime->tm_min);
-        } else if (hide_milliseconds) {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d\n",
-                   use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
-                   use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   pTime->tm_hour,
-                   pTime->tm_min,
-                   pTime->tm_sec);
-        } else {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d.%03ld.%03ld.%03ld\n",
-                   use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
-                   use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   pTime->tm_hour,
-                   pTime->tm_min,
-                   pTime->tm_sec,
-                   ms,
-                   us,
-                   ns);
-        }
-    } else if (show_ms) {
-        if (hide_seconds) {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d\n",
-                   use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
-                   use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   pTime->tm_hour,
-                   pTime->tm_min);
-        } else if (hide_milliseconds) {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d\n",
-                   use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
-                   use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   pTime->tm_hour,
-                   pTime->tm_min,
-                   pTime->tm_sec);
-        } else {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d.%03ld.%03ld\n",
-                   use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
-                   use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   pTime->tm_hour,
-                   pTime->tm_min,
-                   pTime->tm_sec,
-                   ms,
-                   us);
-        }
-    } else {
-        if (hide_seconds) {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d\n",
-                   use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
-                   use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   pTime->tm_hour,
-                   pTime->tm_min);
-        } else if (hide_milliseconds) {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d\n",
-                   use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
-                   use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   pTime->tm_hour,
-                   pTime->tm_min,
-                   pTime->tm_sec);
-        } else {
-            printf("Date: %02d/%02d/%d  Time: %02d:%02d:%02d.%03ld\n",
-                   use_us_date ? pTime->tm_mon + 1 : pTime->tm_mday,
-                   use_us_date ? pTime->tm_mday : pTime->tm_mon + 1,
-                   pTime->tm_year + 1900,
-                   pTime->tm_hour,
-                   pTime->tm_min,
-                   pTime->tm_sec,
-                   ms);
-        }
-    }
-}
- 
+       }
+        print_datetime(pTime, hour, 1, am_pm, ms, us, ns,
+                       use_us_date, hide_date, hide_seconds, 
+                       hide_milliseconds, show_ms, show_ns);
         fflush(stdout);
         
         // Only sleep if not showing high precision time
