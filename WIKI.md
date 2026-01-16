@@ -11,7 +11,7 @@
 - 📅 Unix epoch timestamp display (optional)
 - 🇺🇸 US date format support - switch between DD/MM/YYYY and MM/DD/YYYY
 - ⏱️ Built-in stopwatch - countdown timer with alarm beeps
-- 🎛️ Customizable display - hide seconds, hide milliseconds, show high precision
+- 🎛️ Customizable display - hide date, epoch, seconds, or milliseconds
 - 🖥️ Clean, in-place updating display without flickering or scrolling
 - ⚡ Efficient - automatically adjusts update rate based on precision level
 - 🛑 Graceful exit handling with Ctrl+C
@@ -33,6 +33,11 @@ Date: 15/01/2026  Time: 18:41:13.123
 ```
 Epoch: 1737000000
 Date: 01/15/2026  Time: 18:41:13.123
+```
+
+**Time only (-ND):**
+```
+Time: 18:41:13.123
 ```
 
 **12-hour with no milliseconds:**
@@ -107,6 +112,16 @@ betterdate -12
 betterdate -US
 ```
 
+**Time only (no date):**
+```bash
+betterdate -ND
+```
+
+**Hide epoch:**
+```bash
+betterdate -NE
+```
+
 **Hide milliseconds:**
 ```bash
 betterdate -NM
@@ -130,11 +145,6 @@ Output: `Time: 18:41:13.123.456`
 betterdate -ns
 ```
 Output: `Time: 18:41:13.123.456.789`
-
-**Hide epoch timestamp:**
-```bash
-betterdate -ne
-```
 
 **Change timezone:**
 ```bash
@@ -171,14 +181,14 @@ You can combine multiple flags:
 # 12-hour US format with no milliseconds in Tokyo
 betterdate -12 -US -NM -tz Asia/Tokyo
 
-# 24-hour UTC with nanoseconds, no epoch
-betterdate -tz UTC -ns -ne
+# Time only in UTC with nanoseconds
+betterdate -ND -tz UTC -ns
 
-# 12-hour format with no seconds
-betterdate -12 -NS
+# 12-hour format with no seconds, time only
+betterdate -12 -NS -ND
 
-# US format with microseconds and no epoch
-betterdate -US -ms -ne
+# US format with microseconds, no epoch
+betterdate -US -ms -NE
 ```
 
 ### Available Flags
@@ -186,16 +196,29 @@ betterdate -US -ms -ne
 | Flag | Description | Example |
 |------|-------------|---------|
 | `-12` | Use 12-hour format with AM/PM | `betterdate -12` |
-| `-ne` | Hide epoch timestamp | `betterdate -ne` |
+| `-NE` | Hide epoch timestamp (No Epoch) | `betterdate -NE` |
+| `-ND` | Hide date (No Date) - show time only | `betterdate -ND` |
+| `-NM` | Hide milliseconds (No Milliseconds) | `betterdate -NM` |
+| `-NS` | Hide seconds (No Seconds) | `betterdate -NS` |
 | `-ms` | Show microseconds (milliseconds + microseconds) | `betterdate -ms` |
 | `-ns` | Show nanoseconds (milliseconds + microseconds + nanoseconds) | `betterdate -ns` |
 | `-tz <timezone>` | Display time in specified timezone | `betterdate -tz UTC` |
 | `-US` | Use US date format (MM/DD/YYYY) | `betterdate -US` |
-| `-NM` | Hide milliseconds (No Milliseconds) | `betterdate -NM` |
-| `-NS` | Hide seconds (No Seconds) | `betterdate -NS` |
 | `-sw <minutes>` | Start stopwatch countdown timer | `betterdate -sw 5` |
 | `-h, --help` | Show help message | `betterdate -h` |
 | `-v, --version` | Show version information | `betterdate -v` |
+
+### Naming Convention
+
+**Capital letter flags** remove or hide elements:
+- `-NE` - **N**o **E**poch
+- `-ND` - **N**o **D**ate
+- `-NM` - **N**o **M**illiseconds
+- `-NS` - **N**o **S**econds
+
+**Lowercase flags** show or enable features:
+- `-ms` - show **m**icro**s**econds
+- `-ns` - show **n**ano**s**econds
 
 ### Date Format Options
 
@@ -206,6 +229,10 @@ betterdate -US -ms -ne
 **US Format (-US - MM/DD/YYYY):**
 - 01/15/2026 (January 15th, 2026)
 - Common in United States
+
+**No Date (-ND):**
+- Time only display
+- Automatically hides epoch
 
 ### Time Display Options
 
@@ -354,6 +381,11 @@ Press `Ctrl+C` to exit. The program will gracefully restore your terminal cursor
 - Uses `system("tput bel")` for beep sound (5 times)
 - Hides cursor during countdown, restores on exit
 
+**Code Optimization:**
+- Uses `print_datetime()` helper function to reduce code duplication
+- Single function handles all 18 different display combinations
+- Cleaner, more maintainable codebase
+
 **Performance Optimization:**
 - Default mode: sleeps 1ms between updates (~0.1% CPU)
 - High-precision modes (-ms, -ns): no sleep for maximum update rate (~5-10% CPU)
@@ -489,7 +521,7 @@ Press `Ctrl+C` to exit. The program will gracefully restore your terminal cursor
 
 **Problem: Unknown option error**
 - Check that flag is spelled correctly
-- Flags are case-sensitive: `-US`, `-NS`, `-NM`
+- Flags are case-sensitive: `-US`, `-NS`, `-NM`, `-ND`, `-NE`
 - Use `-h` to see all available options
 
 ---
@@ -505,17 +537,23 @@ betterdate
 # 12-hour clock in US format
 betterdate -12 -US
 
+# Time only with 12-hour format
+betterdate -ND -12
+
 # UTC time with nanoseconds
 betterdate -tz UTC -ns
 
 # Tokyo time, no milliseconds, no epoch
-betterdate -tz Asia/Tokyo -NM -ne
+betterdate -tz Asia/Tokyo -NM -NE
 
 # Simple HH:MM display
-betterdate -NS -ne
+betterdate -NS -NE
 
 # High precision European time
 betterdate -tz Europe/Paris -ns
+
+# Time only, no seconds
+betterdate -ND -NS
 ```
 
 ### Stopwatch Examples
@@ -587,6 +625,7 @@ betterdate -sw 0.167
 - Follow existing code formatting and indentation
 - Keep code beginner-friendly (this is a learning project!)
 - Test on multiple platforms if possible
+- Use helper functions to reduce code duplication
 
 ### Reporting Bugs
 Open an issue on GitHub with:
@@ -626,6 +665,7 @@ BetterDate is a great project for learning:
 - **Build systems** - Cross-platform Makefiles with conditional compilation
 - **System programming** - Working with timestamps, signals, and real-time display
 - **Precision timing** - Understanding nanoseconds, microseconds, and milliseconds
+- **Code optimization** - Using helper functions to reduce duplication
 - **User interface design** - Creating clean, intuitive command-line interfaces
 
 The code is intentionally kept simple and readable, making it perfect for beginners to study and modify while still being useful for daily use.
@@ -679,3 +719,4 @@ For general C programming questions or terminal control help, consider:
 - Can display any timezone in the world without changing system settings
 - The stopwatch accepts fractional minutes (e.g., 0.1 minutes = 6 seconds)
 - Supports both international (DD/MM/YYYY) and US (MM/DD/YYYY) date formats
+- All "remove" flags use capital letters for easy recognition (NE, ND, NM, NS)
